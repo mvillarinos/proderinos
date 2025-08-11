@@ -1,0 +1,438 @@
+<script setup lang="ts">
+interface Tournament {
+  id: number
+  name: string
+  description?: string
+  status: 'draft' | 'in_progress' | 'completed' | 'cancelled'
+  start_date?: string
+  couples_count: number
+  matches_count: number
+}
+
+interface StatusOption {
+  label: string
+  value: string
+}
+
+// State
+const searchQuery = ref('')
+const statusFilter = ref('')
+const showDeleteModal = ref(false)
+const tournamentToDelete = ref<Tournament | null>(null)
+const deleting = ref(false)
+
+// Fetch tournaments
+const { data: tournaments, pending, refresh } = await useLazyFetch<Tournament[]>('/api/tournaments', {
+  server: false,
+  default: () => []
+})
+
+// Filter options
+const statusOptions: StatusOption[] = [
+  { label: 'All Statuses', value: '' },
+  { label: 'Draft', value: 'draft' },
+  { label: 'In Progress', value: 'in_progress' },
+  { label: 'Completed', value: 'completed' },
+  { label: 'Cancelled', value: 'cancelled' }
+]
+
+// Computed
+const filteredTournaments = computed(() => {
+  if (!tournaments.value) return []
+  
+  return tournaments.value.filter(tournament => {
+    const matchesSearch = !searchQuery.value || 
+      tournament.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (tournament.description && tournament.description.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    
+    const matchesStatus = !statusFilter.value || tournament.status === statusFilter.value
+    
+    return matchesSearch && matchesStatus
+  })
+})
+
+// Helper functions
+function getStatusColor(status: string): 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral' {
+  const colors: Record<string, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
+    draft: 'neutral',
+    in_progress: 'info',
+    completed: 'success',
+    cancelled: 'error'
+  }
+  return colors[status] || 'neutral'
+}
+
+function formatDate(dateString?: string): string {
+  if (!dateString) return 'Not set'
+  return new Date(dateString).toLocaleDateString()
+}
+
+async function deleteTournament() {
+  if (!tournamentToDelete.value) return
+  
+  deleting.value = true
+  try {
+    await $fetch(`/api/tournaments/${tournamentToDelete.value.id}`, {
+      method: 'DELETE'
+    })
+    
+    showDeleteModal.value = false
+    tournamentToDelete.value = null
+    await refresh()
+    
+    // Show success notification
+    // You can add a toast notification here if you want
+  } catch (error) {
+    console.error('Failed to delete tournament:', error)
+    // You can add error notification here
+  } finally {
+    deleting.value = false
+  }
+}
+
+// Page meta
+useHead({
+  title: 'Tournaments - Villabet'
+})
+</script>
+
+<template>
+  <div class="space-y-8">
+    <!-- Modern Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      <div>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Tournaments
+        </h1>
+        <p class="text-slate-600 mt-2 text-lg">Manage all your pelota paleta tournaments</p>
+      </div>
+      <UButton 
+        to="/tournaments/create"
+        size="lg"
+        class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+      >
+        <UIcon name="i-heroicons-plus" class="w-5 h-5 mr-2" />
+        Create Tournament
+      </UButton>
+    </div>
+
+    <!-- Modern Filters Section -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+      <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+        <div class="flex-1">
+          <UInput
+            v-model="searchQuery"
+            placeholder="Search tournaments by name or description..."
+            size="lg"
+            class="w-full"
+          >
+            <template #leading>
+              <UIcon name="i-heroicons-magnifying-glass" class="w-5 h-5 text-slate-400" />
+            </template>
+          </UInput>
+        </div>
+        
+        <div class="lg:w-64">
+          <USelectMenu
+            v-model="statusFilter"
+            :options="statusOptions"
+            placeholder="Filter by status"
+            size="lg"
+            class="w-full"
+          >
+            <template #leading>
+              <UIcon name="i-heroicons-funnel" class="w-5 h-5 text-slate-400" />
+            </template>
+          </USelectMenu>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <ClientOnly>
+      <!-- Modern Loading State -->
+      <div v-if="pending" class="flex justify-center py-20">
+        <div class="relative">
+          <div class="w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse" />
+          <div class="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+
+      <!-- Modern Tournaments Grid -->
+      <div v-else-if="filteredTournaments?.length" class="space-y-6">
+        <!-- Tournament Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div 
+            v-for="tournament in filteredTournaments" 
+            :key="tournament.id"
+            class="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-blue-200 cursor-pointer transform hover:scale-105"
+            @click="navigateTo(`/tournaments/${tournament.id}`)"
+          >
+            <!-- Card Header -->
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex-1 pr-3">
+                <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                  {{ tournament.name }}
+                </h3>
+                <p v-if="tournament.description" class="text-slate-600 text-sm mt-1 line-clamp-2">
+                  {{ tournament.description }}
+                </p>
+              </div>
+              <UBadge 
+                :color="getStatusColor(tournament.status)"
+                variant="subtle"
+                class="capitalize flex-shrink-0"
+              >
+                {{ tournament.status.replace('_', ' ') }}
+              </UBadge>
+            </div>
+
+            <!-- Card Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-users" class="w-4 h-4 text-blue-600" />
+                  <span class="text-sm font-medium text-slate-700">Teams</span>
+                </div>
+                <p class="text-xl font-bold text-blue-700 mt-1">{{ tournament.couples_count }}</p>
+              </div>
+              
+              <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-3">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-play" class="w-4 h-4 text-emerald-600" />
+                  <span class="text-sm font-medium text-slate-700">Matches</span>
+                </div>
+                <p class="text-xl font-bold text-emerald-700 mt-1">{{ tournament.matches_count }}</p>
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-slate-500">
+                <UIcon name="i-heroicons-calendar" class="w-4 h-4 inline mr-1" />
+                {{ formatDate(tournament.start_date) }}
+              </div>
+              
+              <div class="flex items-center gap-1">
+                <UButton 
+                  icon="i-heroicons-eye"
+                  variant="ghost"
+                  size="sm"
+                  class="text-blue-600 hover:bg-blue-50"
+                  @click.stop="navigateTo(`/tournaments/${tournament.id}`)"
+                />
+                <UButton 
+                  icon="i-heroicons-trash"
+                  variant="ghost"
+                  size="sm"
+                  class="text-red-600 hover:bg-red-50"
+                  @click.stop="() => {
+                    tournamentToDelete = tournament
+                    showDeleteModal = true
+                  }"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Table View Toggle -->
+        <div class="mt-8">
+        <!-- Detailed Table View -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-slate-600" />
+              <h3 class="font-semibold text-slate-800">Detailed View</h3>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tournament
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Start Date
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Stats
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="tournament in filteredTournaments" :key="tournament.id" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="min-w-0">
+                      <p class="font-medium text-slate-800 truncate">{{ tournament.name }}</p>
+                      <p v-if="tournament.description" class="text-sm text-slate-500 truncate mt-1">
+                        {{ tournament.description }}
+                      </p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <UBadge 
+                      :color="getStatusColor(tournament.status)"
+                      variant="subtle"
+                      class="capitalize"
+                    >
+                      {{ tournament.status.replace('_', ' ') }}
+                    </UBadge>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span class="text-slate-700">{{ formatDate(tournament.start_date) }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="text-sm space-y-1">
+                      <div class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-users" class="w-3 h-3 text-blue-600" />
+                        <span class="text-slate-700">{{ tournament.couples_count }} teams</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-play" class="w-3 h-3 text-emerald-600" />
+                        <span class="text-slate-700">{{ tournament.matches_count }} matches</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex gap-1">
+                      <UButton 
+                        icon="i-heroicons-eye"
+                        variant="ghost"
+                        size="sm"
+                        class="text-blue-600 hover:bg-blue-50"
+                        @click="navigateTo(`/tournaments/${tournament.id}`)"
+                      />
+                      <UButton 
+                        icon="i-heroicons-trash"
+                        variant="ghost"
+                        size="sm"
+                        class="text-red-600 hover:bg-red-50"
+                        @click="() => {
+                          tournamentToDelete = tournament
+                          showDeleteModal = true
+                        }"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <!-- Modern Empty State -->
+      <div v-else class="text-center py-20">
+        <div class="w-24 h-24 bg-gradient-to-r from-slate-100 to-slate-200 rounded-3xl flex items-center justify-center mx-auto mb-8">
+          <UIcon name="i-heroicons-trophy" class="w-12 h-12 text-slate-400" />
+        </div>
+        
+        <h3 class="text-2xl font-bold text-slate-800 mb-4">
+          {{ searchQuery || statusFilter ? 'No tournaments found' : 'No tournaments yet' }}
+        </h3>
+        
+        <p class="text-slate-600 mb-8 max-w-md mx-auto text-lg">
+          {{ searchQuery || statusFilter 
+            ? 'Try adjusting your search criteria or filters to find what you\'re looking for.' 
+            : 'Get started by creating your first tournament and begin managing your pelota paleta competitions!' 
+          }}
+        </p>
+        
+        <div class="space-y-4">
+          <UButton 
+            to="/tournaments/create"
+            size="lg"
+            class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            <UIcon name="i-heroicons-plus" class="w-5 h-5 mr-2" />
+            Create Your First Tournament
+          </UButton>
+          
+          <div v-if="searchQuery || statusFilter">
+            <UButton 
+              variant="outline"
+              @click="() => { searchQuery = ''; statusFilter = '' }"
+            >
+              Clear Filters
+            </UButton>
+          </div>
+        </div>
+      </div>
+      
+      <template #fallback>
+        <div class="flex justify-center py-20">
+          <div class="relative">
+            <div class="w-16 h-16 border-4 border-blue-200 rounded-full animate-pulse" />
+            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      </template>
+    </ClientOnly>
+
+    <!-- Modern Delete Confirmation Modal -->
+    <UModal v-model="showDeleteModal">
+      <UCard 
+        role="dialog" 
+        aria-labelledby="delete-modal-title" 
+        aria-describedby="delete-modal-description"
+        class="max-w-md mx-auto"
+      >
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+              <UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-600" />
+            </div>
+            <h3 id="delete-modal-title" class="text-lg font-bold text-slate-800">Delete Tournament</h3>
+          </div>
+        </template>
+        
+        <div id="delete-modal-description" class="space-y-4">
+          <p class="text-slate-600">
+            Are you sure you want to delete <strong>"{{ tournamentToDelete?.name }}"</strong>? 
+          </p>
+          <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p class="text-red-800 text-sm font-medium">
+              ⚠️ This action cannot be undone and will permanently delete:
+            </p>
+            <ul class="text-red-700 text-sm mt-2 space-y-1">
+              <li>• All tournament data</li>
+              <li>• All participating teams</li>
+              <li>• All match results</li>
+            </ul>
+          </div>
+        </div>
+        
+        <template #footer>
+          <div class="flex justify-end gap-3">
+            <UButton 
+              variant="outline" 
+              :disabled="deleting"
+              @click="showDeleteModal = false"
+            >
+              Cancel
+            </UButton>
+            <UButton 
+              color="error" 
+              :loading="deleting"
+              class="bg-red-600 hover:bg-red-700"
+              @click="deleteTournament"
+            >
+              <UIcon name="i-heroicons-trash" class="w-4 h-4 mr-2" />
+              Delete Tournament
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+  </div>
+</template>

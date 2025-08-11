@@ -1,0 +1,54 @@
+/* Custom global styles for modern Villabet design */
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Global body styles */
+body {
+  background-color: rgb(248 250 252); /* bg-slate-50 */
+  color: rgb(15 23 42); /* text-slate-900 */
+}
+
+/* Custom component classes */
+.btn-gradient {
+  background: linear-gradient(to right, rgb(37 99 235), rgb(99 102 241));
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(to right, rgb(29 78 216), rgb(79 70 229));
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+.card-modern {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgb(241 245 249);
+}
+
+.card-modern:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-header {
+  background: linear-gradient(to right, rgb(37 99 235), rgb(99 102 241));
+  color: white;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, rgb(37 99 235), rgb(99 102 241));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.glass-morphism {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}

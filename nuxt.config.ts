@@ -9,6 +9,21 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/test-utils',
-    '@nuxt/ui'
-  ]
+    '@nuxt/ui',
+    '@sidebase/nuxt-auth'
+  ],
+  css: ['~/assets/css/main.css'],
+  
+  // Force light theme for now
+  colorMode: {
+    preference: 'light',
+    fallback: 'light'
+  },
+  
+  runtimeConfig: {
+    authSecret: process.env.NUXT_AUTH_SECRET || 'your-super-secret-auth-key-change-in-production',
+    public: {
+      authUrl: process.env.NUXT_AUTH_URL || 'http://localhost:3000/api/auth'
+    }
+  }
 })
