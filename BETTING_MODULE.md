@@ -1,4 +1,4 @@
-# Villabet - Simplified Betting Module
+# Proderinos - Simplified Betting Module
 
 ## Overview
 This betting module is designed for admin-managed betting on padel tournament matches. No user groups needed - the admin creates profiles and manages all predictions.
