@@ -43,7 +43,7 @@ function formatDate(dateString?: string): string {
 
 // Page meta
 useHead({
-  title: 'Home - VillaBet Tournaments'
+  title: 'Home - Proderinos Tournaments'
 })
 </script>
 
@@ -53,20 +53,21 @@ useHead({
     <section class="text-center py-16 px-4">
       <div class="max-w-4xl mx-auto">
         <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl mb-8">
-          <UIcon name="i-heroicons-trophy" class="w-10 h-10 text-white" />
+          <UIcon name="custom:paleta" class="w-10 h-10 text-white" />
         </div>
         
         <h1 class="text-5xl sm:text-6xl font-bold mb-6">
           <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            VillaBet
+            Proderinos
           </span>
           <br>
-          <span class="text-slate-800">Padel Tournament Betting</span>
+          <span class="text-slate-800">Hacé tus predicciones en
+            torneos de Pelota Paleta</span>
         </h1>
         
         <p class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Experience the thrill of padel tournament betting. View live tournaments, 
-          check match results, and follow the exciting competition action.
+          Demostrá que sos un experto en el deporte y competí con tus amigos. 
+          Seguí el partido en vivo y la tabla de predicciones.
         </p>
         
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -77,27 +78,7 @@ useHead({
             class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-4"
           >
             <UIcon name="i-heroicons-play" class="w-5 h-5 mr-2" />
-            View Current Tournament
-          </UButton>
-          
-          <UButton 
-            v-else
-            disabled
-            size="xl"
-            class="bg-gray-400 text-white cursor-not-allowed px-8 py-4"
-          >
-            <UIcon name="i-heroicons-stop" class="w-5 h-5 mr-2" />
-            No Current Tournament
-          </UButton>
-          
-          <UButton 
-            to="/admin/login"
-            variant="outline"
-            size="xl"
-            class="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 px-8 py-4"
-          >
-            <UIcon name="i-heroicons-lock-closed" class="w-5 h-5 mr-2" />
-            Admin Access
+            Ver torneo {{ currentTournament.name}}
           </UButton>
         </div>
       </div>
@@ -114,9 +95,9 @@ useHead({
               <div class="w-14 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <UIcon name="i-heroicons-play" class="w-7 h-7 text-white" />
               </div>
-              <h3 class="text-xl font-bold text-slate-800 mb-3">Current Tournament</h3>
+              <h3 class="text-xl font-bold text-slate-800 mb-3">Torneo Actual</h3>
               <p class="text-slate-600 mb-6 leading-relaxed">
-                {{ currentTournament ? `Follow live matches in ${currentTournament.name}` : 'No active tournament at the moment. Check back soon!' }}
+                {{ currentTournament ? `Sigue los partidos en vivo de ${currentTournament.name}` : 'No hay torneo activo en este momento. ¡Vuelve pronto!' }}
               </p>
               <UButton 
                 v-if="currentTournament"
@@ -125,7 +106,7 @@ useHead({
                 class="bg-emerald-600 hover:bg-emerald-700 text-white w-full"
               >
                 <UIcon name="i-heroicons-eye" class="w-4 h-4 mr-2" />
-                View Live Tournament
+                Ver Torneo en Vivo
               </UButton>
               <UButton 
                 v-else
@@ -134,7 +115,7 @@ useHead({
                 class="bg-gray-400 text-white w-full cursor-not-allowed"
               >
                 <UIcon name="i-heroicons-clock" class="w-4 h-4 mr-2" />
-                No Active Tournament
+                No hay torneo activo
               </UButton>
             </div>
           </div>
@@ -146,9 +127,9 @@ useHead({
               <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <UIcon name="i-heroicons-clock" class="w-7 h-7 text-white" />
               </div>
-              <h3 class="text-xl font-bold text-slate-800 mb-3">Previous Matches</h3>
+              <h3 class="text-xl font-bold text-slate-800 mb-3">Partidos Anteriores</h3>
               <p class="text-slate-600 mb-6 leading-relaxed">
-                {{ completedTournaments.length ? `Browse results from ${completedTournaments.length} completed tournaments` : 'No completed tournaments yet.' }}
+                {{ completedTournaments.length ? `Consulta resultados de ${completedTournaments.length} torneos finalizados` : 'Aún no hay torneos finalizados.' }}
               </p>
               <UButton 
                 to="/tournaments" 
@@ -157,7 +138,7 @@ useHead({
                 class="border-blue-300 text-blue-700 hover:bg-blue-50 w-full"
               >
                 <UIcon name="i-heroicons-archive-box" class="w-4 h-4 mr-2" />
-                View Match History
+                Ver Historial de Partidos
               </UButton>
             </div>
           </div>
@@ -169,18 +150,18 @@ useHead({
               <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <UIcon name="i-heroicons-cog-6-tooth" class="w-7 h-7 text-white" />
               </div>
-              <h3 class="text-xl font-bold text-slate-800 mb-3">Admin Panel</h3>
+              <h3 class="text-xl font-bold text-slate-800 mb-3">Panel de Administración</h3>
               <p class="text-slate-600 mb-6 leading-relaxed">
-                Manage tournaments, profiles, and betting predictions. Admin access required for tournament management.
+                Administra torneos, perfiles y predicciones. Se requiere acceso de administrador para la gestión de torneos.
               </p>
               <UButton 
-                to="/admin/login" 
+                to="/login" 
                 variant="outline"
                 size="sm"
                 class="border-purple-300 text-purple-700 hover:bg-purple-50 w-full"
               >
                 <UIcon name="i-heroicons-lock-closed" class="w-4 h-4 mr-2" />
-                Admin Login
+                Iniciar sesión como Administrador
               </UButton>
             </div>
           </div>
@@ -192,8 +173,8 @@ useHead({
     <section class="px-4">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
-          <h2 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">All Tournaments</h2>
-          <p class="text-lg text-slate-600">Browse current and previous tournament activity</p>
+          <h2 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">Todos los Torneos</h2>
+          <p class="text-lg text-slate-600">Consulta la actividad de torneos actuales y anteriores</p>
         </div>
         
         <ClientOnly>
@@ -220,27 +201,27 @@ useHead({
                   variant="subtle"
                   class="capitalize flex-shrink-0"
                 >
-                  {{ tournament.status.replace('_', ' ') }}
+                  {{ tournament.status.replace('_', ' ') === 'draft' ? 'Borrador' : tournament.status.replace('_', ' ') === 'in progress' ? 'En progreso' : tournament.status.replace('_', ' ') === 'completed' ? 'Finalizado' : tournament.status.replace('_', ' ') === 'cancelled' ? 'Cancelado' : tournament.status.replace('_', ' ') }}
                 </UBadge>
               </div>
               
               <div class="space-y-3">
                 <div class="flex items-center justify-between text-sm">
-                  <span class="text-slate-500">Teams:</span>
+                  <span class="text-slate-500">Equipos:</span>
                   <span class="font-medium text-slate-700">{{ tournament.couples_count }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
-                  <span class="text-slate-500">Matches:</span>
+                  <span class="text-slate-500">Partidos:</span>
                   <span class="font-medium text-slate-700">{{ tournament.matches_count }}</span>
                 </div>
                 <div v-if="tournament.start_date" class="flex items-center justify-between text-sm">
-                  <span class="text-slate-500">Start Date:</span>
+                  <span class="text-slate-500">Fecha de inicio:</span>
                   <span class="font-medium text-slate-700">{{ formatDate(tournament.start_date) }}</span>
                 </div>
               </div>
               
               <div class="mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
-                <span class="text-sm font-medium">View Details</span>
+                <span class="text-sm font-medium">Ver Detalles</span>
                 <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -250,16 +231,16 @@ useHead({
             <div class="w-20 h-20 bg-gradient-to-r from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <UIcon name="i-heroicons-trophy" class="w-10 h-10 text-slate-400" />
             </div>
-            <h3 class="text-xl font-bold text-slate-800 mb-3">No tournaments yet</h3>
+            <h3 class="text-xl font-bold text-slate-800 mb-3">Aún no hay torneos</h3>
             <p class="text-slate-600 mb-8 max-w-md mx-auto">
-              Get started by creating your first tournament and begin managing your pelota paleta competitions!
+              ¡Comienza creando tu primer torneo y empieza a gestionar tus competiciones de Pelota Paleta!
             </p>
             <UButton 
               to="/tournaments/create"
               class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <UIcon name="i-heroicons-plus" class="w-4 h-4 mr-2" />
-              Create Your First Tournament
+              Crear tu primer torneo
             </UButton>
           </div>
           
