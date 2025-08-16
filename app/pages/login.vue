@@ -1,84 +1,93 @@
 <script setup lang="ts">
 definePageMeta({
   auth: false,
-  layout: 'admin'
-})
+});
 
-const { signIn, status } = useAuth()
+const { signIn, status } = useAuth();
 
 const form = reactive({
-  username: '',
-  password: ''
-})
+  username: "",
+  password: "",
+});
 
-const isLoading = ref(false)
-const error = ref('')
+const isLoading = ref(false);
+const error = ref("");
 
 const handleLogin = async () => {
   if (!form.username || !form.password) {
-    error.value = 'Please fill in all fields'
-    return
+    error.value = "Please fill in all fields";
+    return;
   }
 
-  isLoading.value = true
-  error.value = ''
+  isLoading.value = true;
+  error.value = "";
 
   try {
-    const result = await signIn('credentials', {
+    const result = await signIn("credentials", {
       username: form.username,
       password: form.password,
-      redirect: false
-    })
+      redirect: false,
+    });
 
     if (result?.error) {
-      error.value = 'Invalid credentials'
+      error.value = "Invalid credentials";
     } else {
-      await navigateTo('/admin')
+      await navigateTo("/admin");
     }
   } catch {
-    error.value = 'Login failed. Please try again.'
+    error.value = "Login failed. Please try again.";
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Redirect if already authenticated
 watchEffect(() => {
-  if (status.value === 'authenticated') {
-    navigateTo('/admin')
+  if (status.value === "authenticated") {
+    navigateTo("/admin");
   }
-})
+});
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="flex-1 flex items-center justify-center">
     <div class="max-w-md w-full space-y-8 p-8">
       <div class="text-center">
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Proderinos</h1>
-        <h2 class="text-xl font-semibold text-gray-600">Admin Login</h2>
-        <p class="text-gray-500 mt-2">Sign in to manage tournaments and betting</p>
-        <p class="text-sm text-blue-600 mt-1">First user will automatically become admin</p>
+        <h2 class="text-xl font-semibold text-gray-600">
+          Ingreso Administrador
+        </h2>
+        <p class="text-gray-500 mt-2">
+          Inicia sesión para gestionar torneos y apuestas
+        </p>
+        <p class="text-sm text-blue-600 mt-1">
+          El primer usuario será administrador automáticamente
+        </p>
       </div>
 
       <div class="bg-white rounded-xl shadow-lg p-8">
-        <form @submit.prevent="handleLogin" class="space-y-6">
+        <form class="space-y-6" @submit.prevent="handleLogin">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Usuario *</label
+            >
             <UInput
               v-model="form.username"
               type="text"
-              placeholder="Enter username"
+              placeholder="Ingresá tu usuario"
               :disabled="isLoading"
               size="lg"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Contraseña *</label
+            >
             <UInput
               v-model="form.password"
               type="password"
-              placeholder="Enter password"
+              placeholder="Ingresá tu contraseña"
               :disabled="isLoading"
               size="lg"
             />
@@ -100,16 +109,17 @@ watchEffect(() => {
             size="lg"
             class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
-            {{ isLoading ? 'Signing in...' : 'Sign In' }}
+            {{ isLoading ? "Ingresando..." : "Ingresar" }}
           </UButton>
         </form>
 
         <div class="mt-6 pt-6 border-t border-gray-200">
           <p class="text-sm text-gray-500 text-center">
-            First login creates your admin account
+            El primer ingreso crea tu cuenta de administrador
           </p>
           <p class="text-xs text-gray-400 text-center mt-1">
-            Subsequent users can be created through the admin panel
+            Los siguientes usuarios pueden crearse desde el panel de
+            administración
           </p>
         </div>
       </div>
