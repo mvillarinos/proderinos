@@ -1,0 +1,819 @@
+{
+  "v": 9,
+  "id": "proderinos_api_collection",
+  "name": "Proderinos API Collection",
+  "folders": [
+    {
+      "v": 9,
+      "id": "auth_folder",
+      "name": "Authentication",
+      "folders": [],
+      "requests": [
+        {
+          "v": "15",
+          "name": "Login",
+          "method": "POST",
+          "endpoint": "<<base-url>>/api/auth/signin",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "if (pw.response.status === 200) {\n    const jsonData = pw.response.body;\n    if (jsonData.user && jsonData.user.id) {\n        pw.env.set(\"user_id\", jsonData.user.id);\n        pw.env.set(\"username\", jsonData.user.username);\n        pw.env.set(\"user_role\", jsonData.user.role);\n        console.log(\"✅ User data saved.\");\n    } else {\n        console.error(\"❌ User data not found.\");\n    }\n} else {\n    console.error(\"❌ Login failed.\");\n}",
+          "auth": {
+            "authType": "none",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Logout",
+          "method": "POST",
+          "endpoint": "<<base-url>>/api/auth/signout",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_proderinos_auth"
+    },
+    {
+      "v": 9,
+      "id": "users_folder",
+      "name": "Users",
+      "folders": [],
+      "requests": [
+        {
+          "v": "15",
+          "name": "Get All Users",
+          "method": "GET",
+          "endpoint": "<<base-url>>/api/users",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Create User",
+          "method": "POST",
+          "endpoint": "<<base-url>>/api/users",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@proderinos.com\",\n  \"password\": \"password123\",\n  \"role\": \"client\",\n  \"name\": \"New User\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_proderinos_users"
+    },
+    {
+      "v": 9,
+      "id": "tournaments_folder",
+      "name": "Tournaments",
+      "folders": [
+        {
+          "v": 9,
+          "id": "couples_folder",
+          "name": "Couples",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "name": "Get Tournament Couples",
+              "method": "GET",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/couples",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Add Couple to Tournament",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/couples",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"player1_name\": \"John Doe\",\n  \"player2_name\": \"Jane Smith\"\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_proderinos_couples"
+        },
+        {
+          "v": 9,
+          "id": "matches_folder",
+          "name": "Matches",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "name": "Get Tournament Matches",
+              "method": "GET",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/matches",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Create Match",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/matches",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"couple1_id\": 1,\n  \"couple2_id\": 2,\n  \"match_order\": 1,\n  \"round_name\": \"Round 1\",\n  \"score_couple1\": 0,\n  \"score_couple2\": 0,\n  \"status\": \"pending\"\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Generate Matches",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/matches/generate",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"format\": \"round_robin\"\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Update Match Result",
+              "method": "PATCH",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/matches/<<match_id>>/result",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"score_couple1\": 21,\n  \"score_couple2\": 18,\n  \"status\": \"completed\",\n  \"winner_id\": 1\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Set Match Result (PUT)",
+              "method": "PUT",
+              "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/matches/<<match_id>>/result",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"score_couple1\": 21,\n  \"score_couple2\": 18,\n  \"winner_id\": 1,\n  \"status\": \"completed\"\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_proderinos_matches"
+        }
+      ],
+      "requests": [
+        {
+          "v": "15",
+          "name": "Get All Tournaments",
+          "method": "GET",
+          "endpoint": "<<base-url>>/api/tournaments",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Create Tournament",
+          "method": "POST",
+          "endpoint": "<<base-url>>/api/tournaments",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "if (pw.response.status === 200) {\n    const jsonData = pw.response.body;\n    if (jsonData.id) {\n        pw.env.set(\"tournament_id\", jsonData.id);\n        console.log(\"✅ Tournament ID saved: \" + jsonData.id);\n    }\n}",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Summer Championship 2025\",\n  \"description\": \"Annual summer tournament\",\n  \"start_date\": \"2025-08-20\",\n  \"end_date\": \"2025-08-25\",\n  \"status\": \"draft\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Get Tournament by ID",
+          "method": "GET",
+          "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Update Tournament",
+          "method": "PATCH",
+          "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Updated Tournament Name\",\n  \"status\": \"in_progress\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Replace Tournament",
+          "method": "PUT",
+          "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"name\": \"Replaced Tournament\",\n  \"description\": \"Complete tournament replacement\",\n  \"start_date\": \"2025-09-01\",\n  \"end_date\": \"2025-09-05\",\n  \"status\": \"draft\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Delete Tournament",
+          "method": "DELETE",
+          "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "Get Tournament Statistics",
+          "method": "GET",
+          "endpoint": "<<base-url>>/api/tournaments/<<tournament_id>>/stats",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_proderinos_tournaments"
+    },
+    {
+      "v": 9,
+      "id": "betting_folder",
+      "name": "Betting",
+      "folders": [
+        {
+          "v": 9,
+          "id": "profiles_folder",
+          "name": "Profiles",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "name": "Get All Profiles",
+              "method": "GET",
+              "endpoint": "<<base-url>>/api/betting/profiles",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Create Profile",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/betting/profiles",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "if (pw.response.status === 200) {\n    const jsonData = pw.response.body;\n    if (jsonData.id) {\n        pw.env.set(\"profile_id\", jsonData.id);\n        console.log(\"✅ Profile ID saved: \" + jsonData.id);\n    }\n}",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"name\": \"Betting User\",\n  \"email\": \"bettor@proderinos.com\",\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_proderinos_profiles"
+        },
+        {
+          "v": 9,
+          "id": "predictions_folder",
+          "name": "Predictions",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "name": "Get Predictions",
+              "method": "GET",
+              "endpoint": "<<base-url>>/api/betting/predictions",
+              "params": [
+                {
+                  "key": "profile_id",
+                  "value": "<<profile_id>>",
+                  "active": false,
+                  "description": "Filter by profile ID"
+                },
+                {
+                  "key": "match_id",
+                  "value": "<<match_id>>",
+                  "active": false,
+                  "description": "Filter by match ID"
+                },
+                {
+                  "key": "tournament_id",
+                  "value": "<<tournament_id>>",
+                  "active": false,
+                  "description": "Filter by tournament ID"
+                }
+              ],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Create Prediction",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/betting/predictions",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "if (pw.response.status === 200) {\n    const jsonData = pw.response.body;\n    if (jsonData.id) {\n        pw.env.set(\"prediction_id\", jsonData.id);\n        console.log(\"✅ Prediction ID saved: \" + jsonData.id);\n    }\n}",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"match_id\": 1,\n  \"profile_id\": 1,\n  \"predicted_winner_id\": 1,\n  \"predicted_score_couple1\": 21,\n  \"predicted_score_couple2\": 18\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Create Bulk Predictions",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/betting/predictions/bulk",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"predictions\": [\n    {\n      \"match_id\": 1,\n      \"profile_id\": 1,\n      \"predicted_winner_id\": 1,\n      \"predicted_score_couple1\": 21,\n      \"predicted_score_couple2\": 18\n    },\n    {\n      \"match_id\": 2,\n      \"profile_id\": 1,\n      \"predicted_winner_id\": 3,\n      \"predicted_score_couple1\": 19,\n      \"predicted_score_couple2\": 21\n    }\n  ]\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Update Prediction",
+              "method": "PATCH",
+              "endpoint": "<<base-url>>/api/betting/predictions/<<prediction_id>>",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{\n  \"predicted_winner_id\": 2,\n  \"predicted_score_couple1\": 20,\n  \"predicted_score_couple2\": 22\n}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            },
+            {
+              "v": "15",
+              "name": "Delete Prediction",
+              "method": "DELETE",
+              "endpoint": "<<base-url>>/api/betting/predictions/<<prediction_id>>",
+              "params": [],
+              "headers": [],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": null,
+                "body": null
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_proderinos_predictions"
+        },
+        {
+          "v": 9,
+          "id": "matches_betting_folder",
+          "name": "Match Operations",
+          "folders": [],
+          "requests": [
+            {
+              "v": "15",
+              "name": "Calculate Match Points",
+              "method": "POST",
+              "endpoint": "<<base-url>>/api/betting/matches/<<match_id>>/calculate-points",
+              "params": [],
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "active": true,
+                  "description": ""
+                }
+              ],
+              "preRequestScript": "",
+              "testScript": "",
+              "auth": {
+                "authType": "inherit",
+                "authActive": true
+              },
+              "body": {
+                "contentType": "application/json",
+                "body": "{}"
+              },
+              "requestVariables": [],
+              "responses": {}
+            }
+          ],
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "headers": [],
+          "_ref_id": "coll_proderinos_match_betting"
+        }
+      ],
+      "requests": [
+        {
+          "v": "15",
+          "name": "Get Leaderboard",
+          "method": "GET",
+          "endpoint": "<<base-url>>/api/betting/leaderboard",
+          "params": [
+            {
+              "key": "tournament_id",
+              "value": "<<tournament_id>>",
+              "active": false,
+              "description": "Filter by tournament ID"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "active": false,
+              "description": "Limit results (max 100)"
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_proderinos_betting"
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_proderinos_main"
+}

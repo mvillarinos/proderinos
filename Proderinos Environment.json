@@ -1,0 +1,79 @@
+{
+  "id": "proderinos_environment",
+  "v": 2,
+  "name": "Proderinos Environment",
+  "variables": [
+    {
+      "key": "base-url",
+      "secret": false,
+      "initialValue": "http://localhost:3000",
+      "currentValue": ""
+    },
+    {
+      "key": "production-url",
+      "secret": false,
+      "initialValue": "https://proderinos.com",
+      "currentValue": ""
+    },
+    {
+      "key": "staging-url",
+      "secret": false,
+      "initialValue": "https://staging.proderinos.com",
+      "currentValue": ""
+    },
+    {
+      "key": "tournament_id",
+      "secret": false,
+      "initialValue": "1",
+      "currentValue": ""
+    },
+    {
+      "key": "match_id",
+      "secret": false,
+      "initialValue": "1",
+      "currentValue": ""
+    },
+    {
+      "key": "couple_id",
+      "secret": false,
+      "initialValue": "1",
+      "currentValue": ""
+    },
+    {
+      "key": "profile_id",
+      "secret": false,
+      "initialValue": "1",
+      "currentValue": ""
+    },
+    {
+      "key": "prediction_id",
+      "secret": false,
+      "initialValue": "1",
+      "currentValue": ""
+    },
+    {
+      "key": "user_id",
+      "secret": false,
+      "initialValue": "",
+      "currentValue": ""
+    },
+    {
+      "key": "username",
+      "secret": false,
+      "initialValue": "",
+      "currentValue": ""
+    },
+    {
+      "key": "user_role",
+      "secret": false,
+      "initialValue": "",
+      "currentValue": ""
+    },
+    {
+      "key": "auth_token",
+      "secret": true,
+      "initialValue": "",
+      "currentValue": ""
+    }
+  ]
+}
