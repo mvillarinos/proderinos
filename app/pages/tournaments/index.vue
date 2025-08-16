@@ -19,10 +19,9 @@ const searchQuery = ref('')
 const statusFilter = ref('')
 const showDeleteModal = ref(false)
 const tournamentToDelete = ref<Tournament | null>(null)
-const deleting = ref(false)
 
 // Fetch tournaments
-const { data: tournaments, pending, refresh } = await useLazyFetch<Tournament[]>('/api/tournaments', {
+const { data: tournaments, pending } = await useLazyFetch<Tournament[]>('/api/tournaments', {
   server: false,
   default: () => []
 })
@@ -67,32 +66,9 @@ function formatDate(dateString?: string): string {
   return new Date(dateString).toLocaleDateString()
 }
 
-async function deleteTournament() {
-  if (!tournamentToDelete.value) return
-  
-  deleting.value = true
-  try {
-    await $fetch(`/api/tournaments/${tournamentToDelete.value.id}`, {
-      method: 'DELETE'
-    })
-    
-    showDeleteModal.value = false
-    tournamentToDelete.value = null
-    await refresh()
-    
-    // Show success notification
-    // You can add a toast notification here if you want
-  } catch (error) {
-    console.error('Failed to delete tournament:', error)
-    // You can add error notification here
-  } finally {
-    deleting.value = false
-  }
-}
-
 // Page meta
 useHead({
-  title: 'Tournaments - Villabet'
+  title: 'Tournaments - Proderinos'
 })
 </script>
 
@@ -378,61 +354,5 @@ useHead({
         </div>
       </template>
     </ClientOnly>
-
-    <!-- Modern Delete Confirmation Modal -->
-    <UModal v-model="showDeleteModal">
-      <UCard 
-        role="dialog" 
-        aria-labelledby="delete-modal-title" 
-        aria-describedby="delete-modal-description"
-        class="max-w-md mx-auto"
-      >
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-              <UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-600" />
-            </div>
-            <h3 id="delete-modal-title" class="text-lg font-bold text-slate-800">Delete Tournament</h3>
-          </div>
-        </template>
-        
-        <div id="delete-modal-description" class="space-y-4">
-          <p class="text-slate-600">
-            Are you sure you want to delete <strong>"{{ tournamentToDelete?.name }}"</strong>? 
-          </p>
-          <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p class="text-red-800 text-sm font-medium">
-              ⚠️ This action cannot be undone and will permanently delete:
-            </p>
-            <ul class="text-red-700 text-sm mt-2 space-y-1">
-              <li>• All tournament data</li>
-              <li>• All participating teams</li>
-              <li>• All match results</li>
-            </ul>
-          </div>
-        </div>
-        
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton 
-              variant="outline" 
-              :disabled="deleting"
-              @click="showDeleteModal = false"
-            >
-              Cancel
-            </UButton>
-            <UButton 
-              color="error" 
-              :loading="deleting"
-              class="bg-red-600 hover:bg-red-700"
-              @click="deleteTournament"
-            >
-              <UIcon name="i-heroicons-trash" class="w-4 h-4 mr-2" />
-              Delete Tournament
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>

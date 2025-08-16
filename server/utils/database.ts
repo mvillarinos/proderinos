@@ -8,7 +8,7 @@ export function getDatabase() {
   if (!db) {
     // Create database in the .data directory (ignored by git)
     const dataDir = join(process.cwd(), '.data')
-    const dbPath = join(dataDir, 'villabet.db')
+    const dbPath = join(dataDir, 'proderinos.db')
     
     // Ensure .data directory exists
     if (!existsSync(dataDir)) {

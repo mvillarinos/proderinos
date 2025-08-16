@@ -26,7 +26,7 @@ export default NuxtAuthHandler({
           try {
             const firstUser = await createUser({
               username,
-              email: `${username}@villabet.local`,
+              email: `${username}@proderinos.local`,
               password,
               role: 'admin',
               name: 'Admin User'
@@ -85,6 +85,6 @@ export default NuxtAuthHandler({
     }
   },
   pages: {
-    signIn: '/admin/login'
+    signIn: '/login'
   }
 })

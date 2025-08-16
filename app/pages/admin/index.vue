@@ -88,7 +88,7 @@ const menuItems = [
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-gray-900">VillaBet Admin</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Proderinos Admin</h1>
           </div>
           
           <div class="flex items-center space-x-4">

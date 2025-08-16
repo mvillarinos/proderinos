@@ -90,7 +90,7 @@ async function createTournament() {
 
 // Page meta
 useHead({
-  title: 'Create Tournament - Villabet'
+  title: 'Create Tournament - Proderinos'
 })
 </script>
 
