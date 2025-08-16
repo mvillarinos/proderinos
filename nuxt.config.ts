@@ -19,6 +19,15 @@ export default defineNuxtConfig({
     preference: 'light',
     fallback: 'light'
   },
+
+  icon: {
+    customCollections: [
+      {
+        prefix: 'custom',
+        dir: './app/assets/icons'
+      },
+    ],
+  },
   
   runtimeConfig: {
     authSecret: process.env.NUXT_AUTH_SECRET || 'your-super-secret-auth-key-change-in-production',
