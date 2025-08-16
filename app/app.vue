@@ -1,10 +1,13 @@
 <script setup lang="ts">
 useHead({
-  title: 'Proderinos - Tournament Management',
+  title: "Proderinos - Tournament Management",
   meta: [
-    { name: 'description', content: 'Manage your pelota paleta tournaments' }
-  ]
-})
+    {
+      name: "description",
+      content: "Administra todos tus torneos de pelota paleta",
+    },
+  ],
+});
 </script>
 
 <template>

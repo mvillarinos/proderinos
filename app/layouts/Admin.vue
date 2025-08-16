@@ -10,12 +10,14 @@
         <div class="mb-6">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-2xl font-bold text-slate-900">Administration</h2>
-              <p class="text-slate-600 mt-1">Manage tournaments, users, and settings</p>
+              <h2 class="text-2xl font-bold text-slate-900">Administración</h2>
+              <p class="text-slate-600 mt-1">
+                Administra torneos, usuarios y configuraciones
+              </p>
             </div>
-            <UButton 
-              to="/admin" 
-              variant="outline" 
+            <UButton
+              to="/admin"
+              variant="outline"
               size="sm"
               class="text-slate-600 hover:text-blue-600 border-slate-300 hover:border-blue-300"
             >
@@ -24,7 +26,7 @@
             </UButton>
           </div>
         </div>
-        
+
         <!-- Admin content -->
         <slot />
       </div>
