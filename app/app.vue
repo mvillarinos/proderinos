@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  title: "Proderinos - Tournament Management",
+  title: "Proderinos - Tu gestión de torneos",
   meta: [
     {
       name: "description",
