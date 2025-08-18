@@ -30,21 +30,80 @@ export function getDatabase() {
 function initializeSchema() {
   if (!db) return
   
-  // Create users table for authentication
+  // Create users table for authentication with OAuth support
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
+      username TEXT UNIQUE,
       email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      role TEXT DEFAULT 'client' CHECK (role IN ('admin', 'client')),
+      password_hash TEXT,
+      role TEXT DEFAULT 'player' CHECK (role IN ('admin', 'organizator', 'player')),
       name TEXT,
       avatar_url TEXT,
+      oauth_provider TEXT,
+      oauth_id TEXT,
       is_active BOOLEAN DEFAULT 1,
+      profile_completed BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `)
+
+  // Add new columns if they don't exist (migration)
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN oauth_provider TEXT`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN oauth_id TEXT`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN profile_completed BOOLEAN DEFAULT 0`)
+  } catch {
+    // Column might already exist
+  }
+
+  // Update role constraint to include new roles
+  try {
+    db.exec(`
+      CREATE TABLE users_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT,
+        role TEXT DEFAULT 'player' CHECK (role IN ('admin', 'organizator', 'player')),
+        name TEXT,
+        avatar_url TEXT,
+        oauth_provider TEXT,
+        oauth_id TEXT,
+        is_active BOOLEAN DEFAULT 1,
+        profile_completed BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      INSERT INTO users_new SELECT 
+        id, username, email, password_hash, 
+        CASE 
+          WHEN role = 'client' THEN 'player'
+          ELSE role 
+        END as role,
+        name, avatar_url, oauth_provider, oauth_id, is_active, profile_completed,
+        created_at, updated_at
+      FROM users;
+      
+      DROP TABLE users;
+      ALTER TABLE users_new RENAME TO users;
+    `)
+  } catch {
+    // Table might already be updated
+    console.log('Users table migration skipped (already updated)')
+  }
 
   // Create tournaments table
   db.exec(`
@@ -189,24 +248,29 @@ export interface MatchWithCouples extends Match {
 // Authentication Types
 export interface User {
   id?: number
-  username: string
+  username?: string
   email: string
   password_hash?: string
-  role: 'admin' | 'client'
+  role: 'admin' | 'organizator' | 'player'
   name?: string
   avatar_url?: string
+  oauth_provider?: string
+  oauth_id?: string
   is_active?: boolean
+  profile_completed?: boolean
   created_at?: string
   updated_at?: string
 }
 
 export interface CreateUserData {
-  username: string
+  username?: string
   email: string
-  password: string
-  role?: 'admin' | 'client'
+  password?: string
+  role?: 'admin' | 'organizator' | 'player'
   name?: string
   avatar_url?: string
+  oauth_provider?: string
+  oauth_id?: string
 }
 
 // Betting Types
