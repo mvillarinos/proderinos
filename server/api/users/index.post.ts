@@ -4,11 +4,14 @@ const createUserSchema = z.object({
   username: z.string().min(3).max(50),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['admin', 'client']).optional(),
+  role: z.enum(['admin', 'organizator', 'player']).optional(),
   name: z.string().optional()
 })
 
 export default defineEventHandler(async (event) => {
+  // Require admin authentication for creating users
+  await requireAdminAuth(event)
+  
   try {
     const body = await readBody(event)
     const validatedData = createUserSchema.parse(body)

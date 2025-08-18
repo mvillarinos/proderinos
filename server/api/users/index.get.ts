@@ -1,6 +1,7 @@
-export default defineEventHandler(async (_event) => {
-  // For now, we'll create a simple endpoint
-  // TODO: Add proper auth middleware after testing
+export default defineEventHandler(async (event) => {
+  // Require admin authentication
+  await requireAdminAuth(event)
+  
   try {
     const users = getAllUsers()
     return { users }

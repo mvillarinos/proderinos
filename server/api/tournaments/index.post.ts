@@ -1,5 +1,7 @@
 export default defineEventHandler(async (event) => {
-  // Note: In production, add admin authentication check here
+  // Require admin authentication for creating tournaments
+  await requireAdminAuth(event)
+  
   const db = getDatabase()
   const body = await readBody(event) as Omit<Tournament, 'id' | 'created_at' | 'updated_at'>
   
