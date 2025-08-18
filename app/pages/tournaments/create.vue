@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { z } from "zod";
 
+definePageMeta({
+  auth: true,
+});
+
 // Types
 interface Tournament {
   id: number;

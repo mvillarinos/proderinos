@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  auth: false,
+});
+
 interface Tournament {
   id: number;
   name: string;
