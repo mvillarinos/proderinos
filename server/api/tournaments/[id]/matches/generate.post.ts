@@ -1,4 +1,7 @@
 
+import { canManageTournament } from '../../../../utils/auth-check'
+import { getDatabase } from '../../../../utils/database'
+
 interface MatchToInsert {
   couple1_id: number
   couple2_id: number
@@ -20,6 +23,9 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Tournament ID is required'
     })
   }
+  
+  // Check permissions to manage this tournament
+  await canManageTournament(event, tournamentId)
   
   try {
     // Check if tournament exists

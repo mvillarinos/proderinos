@@ -1,3 +1,6 @@
+import { canManageTournament } from '../../utils/auth-check'
+import { getDatabase } from '../../utils/database'
+
 export default defineEventHandler(async (event) => {
   const db = getDatabase()
   const tournamentId = getRouterParam(event, 'id')
@@ -8,6 +11,9 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Tournament ID is required'
     })
   }
+  
+  // Check permissions to manage this tournament
+  await canManageTournament(event, tournamentId)
   
   try {
     // Check if tournament exists
@@ -34,6 +40,7 @@ export default defineEventHandler(async (event) => {
     if (error instanceof Error && error.message.includes('Tournament not found')) {
       throw error
     }
+    console.error('Tournament deletion error:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to delete tournament'

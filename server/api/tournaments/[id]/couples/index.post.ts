@@ -1,3 +1,6 @@
+import { canManageTournament } from '../../../../utils/auth-check'
+import { getDatabase, type Couple } from '../../../../utils/database'
+
 export default defineEventHandler(async (event) => {
   const db = getDatabase()
   const tournamentId = getRouterParam(event, 'id')
@@ -9,6 +12,9 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Tournament ID is required'
     })
   }
+  
+  // Check permissions to manage this tournament
+  await canManageTournament(event, tournamentId)
   
   // Validate required fields
   if (!body.player1_name || !body.player2_name) {
