@@ -17,6 +17,7 @@ const user = computed(
           image?: string | null;
           username?: string;
           role?: string;
+          dbId?: string | number;
         }
       | undefined
 );
