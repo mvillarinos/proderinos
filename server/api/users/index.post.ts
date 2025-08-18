@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { UserPostBody, UserResponse } from '#shared/types'
 
 const createUserSchema = z.object({
   username: z.string().min(3).max(50),
@@ -8,12 +9,12 @@ const createUserSchema = z.object({
   name: z.string().optional()
 })
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<UserResponse> => {
   // Require admin authentication for creating users
   await requireAdminAuth(event)
   
   try {
-    const body = await readBody(event)
+    const body = await readBody(event) as UserPostBody
     const validatedData = createUserSchema.parse(body)
 
     // Check if username already exists
@@ -37,7 +38,17 @@ export default defineEventHandler(async (event) => {
     // Create new user
     const newUser = await createUser(validatedData)
     
-    return { user: newUser }
+    if (!newUser || !newUser.id) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to create user'
+      })
+    }
+    
+    // Remove password_hash from response
+    const { password_hash, ...userResponse } = newUser
+    
+    return { user: userResponse as UserResponse['user'] }
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw createError({

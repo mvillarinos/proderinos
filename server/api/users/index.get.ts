@@ -1,9 +1,12 @@
-export default defineEventHandler(async (event) => {
+import type { UsersResponse } from '#shared/types'
+
+export default defineEventHandler(async (event): Promise<UsersResponse> => {
   // Require admin authentication
   await requireAdminAuth(event)
   
   try {
-    const users = getAllUsers()
+    const dbUsers = getAllUsers()
+    const users = dbUsers.filter(user => user.id !== undefined) as UsersResponse['users']
     return { users }
   } catch (error) {
     console.error('Failed to fetch users:', error)

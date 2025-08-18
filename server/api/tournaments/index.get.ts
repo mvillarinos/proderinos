@@ -1,16 +1,6 @@
 import { getAuthSession } from '../../utils/auth-check'
 import { getDatabase } from '../../utils/database'
-
-interface ExtendedUser {
-  id: string
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  username?: string
-  role?: 'admin' | 'organizator' | 'player'
-  dbId?: string | number
-  profileCompleted?: boolean
-}
+import type { TournamentsResponse, ExtendedUser } from '#shared/types'
 
 interface TournamentWithCounts {
   id: number
@@ -30,7 +20,7 @@ interface TournamentWithCounts {
   matches_count: number
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<TournamentsResponse> => {
   const db = getDatabase()
   const session = await getAuthSession(event)
   
@@ -72,10 +62,13 @@ export default defineEventHandler(async (event) => {
     }
     
     // Parse organizators_id JSON for each tournament
-    return tournaments.map((tournament: TournamentWithCounts) => ({
+    const processedTournaments = tournaments.map((tournament: TournamentWithCounts) => ({
       ...tournament,
+      status: tournament.status as 'draft' | 'in_progress' | 'completed' | 'cancelled',
       organizators_id: tournament.organizators_id ? JSON.parse(tournament.organizators_id) : []
     }))
+    
+    return { tournaments: processedTournaments as TournamentsResponse['tournaments'] }
   } catch (error) {
     console.error('Tournament fetch error:', error)
     throw createError({
