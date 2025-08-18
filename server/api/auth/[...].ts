@@ -1,12 +1,25 @@
+import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import { NuxtAuthHandler } from '#auth'
+import { authenticateUser, findOrCreateOAuthUser, updateUserRole, getUserById } from '../../utils/users'
 
 export default NuxtAuthHandler({
   secret: useRuntimeConfig().authSecret,
   providers: [
-    {
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
+    GoogleProvider.default({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      authorization: {
+        params: {
+          scope: 'openid email profile'
+        }
+      }
+    }),
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point  
+    CredentialsProvider.default({
       id: 'credentials',
       name: 'Credentials',
-      type: 'credentials',
       credentials: {
         username: { label: 'Username', type: 'text' },
         password: { label: 'Password', type: 'password' }
@@ -18,32 +31,6 @@ export default NuxtAuthHandler({
 
         const username = credentials.username as string
         const password = credentials.password as string
-
-        // Check if this is the first user - if so, create admin account
-        const userCount = getUsersCount()
-        
-        if (userCount === 0) {
-          try {
-            const firstUser = await createUser({
-              username,
-              email: `${username}@proderinos.local`,
-              password,
-              role: 'admin',
-              name: 'Admin User'
-            })
-            
-            return {
-              id: firstUser.id!.toString(),
-              name: firstUser.name || firstUser.username,
-              email: firstUser.email,
-              username: firstUser.username,
-              role: firstUser.role
-            }
-          } catch (error) {
-            console.error('Failed to create first user:', error)
-            return null
-          }
-        }
 
         // Authenticate existing user
         const user = await authenticateUser(username, password)
@@ -60,26 +47,62 @@ export default NuxtAuthHandler({
         
         return null
       }
-    }
+    })
   ],
   session: {
     strategy: 'jwt'
   },
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async jwt({ token, user }: { token: any; user?: any }) {
+    async jwt({ token, user, account }: { token: any; user?: any; account?: any }) {
       if (user) {
-        token.role = user.role
-        token.username = user.username
+        // For Google OAuth users
+        if (account?.provider === 'google') {
+          const runtimeConfig = useRuntimeConfig()
+          const adminEmail = runtimeConfig.adminEmail
+          
+          // Find or create OAuth user in database
+          const dbUser = findOrCreateOAuthUser(
+            user.email,
+            user.name || 'OAuth User',
+            user.image,
+            'google',
+            user.id
+          )
+          
+          // Update role in database if this is the admin user and not already admin
+          if (user.email === adminEmail && dbUser.role !== 'admin') {
+            updateUserRole(dbUser.id!, 'admin')
+            // Refresh the user data after role update
+            const updatedUser = getUserById(dbUser.id!)
+            if (updatedUser) {
+              token.role = updatedUser.role
+            }
+          } else {
+            token.role = dbUser.role
+          }
+          
+          token.username = dbUser.username || user.email.split('@')[0]
+          token.dbId = dbUser.id
+          token.profileCompleted = dbUser.profile_completed || false
+        } else {
+          // For credentials users
+          token.role = user.role
+          token.username = user.username
+          token.dbId = user.dbId
+          token.profileCompleted = true // Credentials users have completed profile
+        }
       }
       return token
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async session({ session, token }: { session: any; token: any }) {
       if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
-        session.user.username = token.username as string
+        session.user.id = token.sub
+        session.user.role = token.role
+        session.user.username = token.username
+        session.user.dbId = token.dbId
+        session.user.profileCompleted = token.profileCompleted
       }
       return session
     }
