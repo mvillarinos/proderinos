@@ -6,20 +6,26 @@ declare module 'next-auth' {
       email?: string | null
       image?: string | null
       username?: string
-      role?: string
+      role?: 'admin' | 'organizator' | 'player'
+      dbId?: string | number
+      profileCompleted?: boolean
     }
   }
 
   interface User {
     username?: string
-    role?: string
+    role?: 'admin' | 'organizator' | 'player'
+    dbId?: string | number
+    profileCompleted?: boolean
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     username?: string
-    role?: string
+    role?: 'admin' | 'organizator' | 'player'
+    dbId?: string | number
+    profileCompleted?: boolean
   }
 }
 
@@ -31,12 +37,16 @@ declare module '@sidebase/nuxt-auth' {
       email?: string | null
       image?: string | null
       username?: string
-      role?: string
+      role?: 'admin' | 'organizator' | 'player'
+      dbId?: string | number
+      profileCompleted?: boolean
     }
   }
 
   interface User {
     username?: string
-    role?: string
+    role?: 'admin' | 'organizator' | 'player'
+    dbId?: string | number
+    profileCompleted?: boolean
   }
 }
