@@ -114,10 +114,46 @@ function initializeSchema() {
       start_date DATE,
       end_date DATE,
       status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'in_progress', 'completed', 'cancelled')),
+      visible BOOLEAN DEFAULT 1,
+      primary_color TEXT DEFAULT '#3B82F6',
+      background_color TEXT DEFAULT '#F8FAFC',
+      owner_id TEXT NOT NULL,
+      organizators_id TEXT DEFAULT '[]',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `)
+
+  // Add new columns if they don't exist (migration for tournaments)
+  try {
+    db.exec(`ALTER TABLE tournaments ADD COLUMN visible BOOLEAN DEFAULT 1`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE tournaments ADD COLUMN primary_color TEXT DEFAULT '#3B82F6'`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE tournaments ADD COLUMN background_color TEXT DEFAULT '#F8FAFC'`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE tournaments ADD COLUMN owner_id TEXT`)
+  } catch {
+    // Column might already exist
+  }
+  
+  try {
+    db.exec(`ALTER TABLE tournaments ADD COLUMN organizators_id TEXT DEFAULT '[]'`)
+  } catch {
+    // Column might already exist
+  }
   
   // Create couples table
   db.exec(`
@@ -205,6 +241,11 @@ export interface Tournament {
   start_date?: string
   end_date?: string
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled'
+  visible?: boolean
+  primary_color?: string
+  background_color?: string
+  owner_id: string
+  organizators_id?: string[] | string
   created_at?: string
   updated_at?: string
 }
