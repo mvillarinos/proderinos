@@ -1,22 +1,8 @@
 <script setup lang="ts">
 definePageMeta({
   auth: false,
+  title: "Tournaments - Proderinos",
 });
-
-interface Tournament {
-  id: number;
-  name: string;
-  description?: string;
-  status: "draft" | "in_progress" | "completed" | "cancelled";
-  start_date?: string;
-  couples_count: number;
-  matches_count: number;
-}
-
-interface StatusOption {
-  label: string;
-  value: string;
-}
 
 // State
 const searchQuery = ref("");
@@ -25,16 +11,10 @@ const showDeleteModal = ref(false);
 const tournamentToDelete = ref<Tournament | null>(null);
 
 // Fetch tournaments
-const { data: tournaments, pending } = await useLazyFetch<Tournament[]>(
-  "/api/tournaments",
-  {
-    server: false,
-    default: () => [],
-  }
-);
+const { tournaments, pending } = useGetAllTournaments();
 
 // Filter options
-const statusOptions: StatusOption[] = [
+const statusOptions = [
   { label: "All Statuses", value: "" },
   { label: "Draft", value: "draft" },
   { label: "In Progress", value: "in_progress" },
@@ -60,45 +40,6 @@ const filteredTournaments = computed(() => {
 
     return matchesSearch && matchesStatus;
   });
-});
-
-// Helper functions
-function getStatusColor(
-  status: string
-):
-  | "primary"
-  | "secondary"
-  | "success"
-  | "info"
-  | "warning"
-  | "error"
-  | "neutral" {
-  const colors: Record<
-    string,
-    | "primary"
-    | "secondary"
-    | "success"
-    | "info"
-    | "warning"
-    | "error"
-    | "neutral"
-  > = {
-    draft: "neutral",
-    in_progress: "info",
-    completed: "success",
-    cancelled: "error",
-  };
-  return colors[status] || "neutral";
-}
-
-function formatDate(dateString?: string): string {
-  if (!dateString) return "Not set";
-  return new Date(dateString).toLocaleDateString();
-}
-
-// Page meta
-useHead({
-  title: "Tournaments - Proderinos",
 });
 </script>
 

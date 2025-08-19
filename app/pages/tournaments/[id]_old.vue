@@ -2,13 +2,6 @@
 definePageMeta({
   auth: false,
 });
-// useHead({
-//   title: computed(() =>
-//     tournament.value
-//       ? `${tournament.value.name} - Proderinos`
-//       : "Tournament - Proderinos"
-//   ),
-// });
 
 // Get tournament ID from route
 const route = useRoute();
@@ -69,6 +62,16 @@ const tabs = [
 ];
 
 // Helper functions
+// function getStatusColor(status: string) {
+//   const colors: Record<string, string> = {
+//     draft: "neutral",
+//     in_progress: "primary",
+//     completed: "success",
+//     cancelled: "error",
+//   };
+//   return colors[status] || "neutral";
+// }
+
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
     draft: "Borrador",
@@ -87,6 +90,11 @@ function getMatchStatusLabel(status: string) {
     cancelled: "Cancelado",
   };
   return labels[status] || status;
+}
+
+function formatDate(dateString?: string) {
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString();
 }
 </script>
 
@@ -218,143 +226,156 @@ function getMatchStatusLabel(status: string) {
 
       <!-- Tabs -->
       <UTabs :items="tabs" class="w-full">
-        <template #default="{ item }">
+        <!-- Couples Tab -->
+        <template #couples="{ item }">
           <UCard>
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold">
-                  {{
-                    item.key === "couples"
-                      ? `Equipos (${couples?.length || 0})`
-                      : `Partidos (${matches?.length || 0})`
-                  }}
+                  Equipos ({{ couples?.length || 0 }})
                 </h3>
                 <UButton icon="i-heroicons-plus" size="sm">
-                  {{
-                    item.key === "couples"
-                      ? "Agregar Equipo"
-                      : "Agregar Partido"
-                  }}
+                  Agregar Equipo
                 </UButton>
               </div>
             </template>
-            <div v-if="item.key === 'couples'">
-              <div v-if="couplesPending" class="flex justify-center py-8">
-                <UIcon
-                  name="i-heroicons-arrow-path"
-                  class="w-6 h-6 animate-spin text-blue-500"
-                />
-              </div>
-              <div v-else-if="couplesError" class="py-4">
-                <UAlert
-                  icon="i-heroicons-exclamation-triangle"
-                  color="error"
-                  title="Error"
-                  description="No se pudieron cargar los equipos"
-                />
-              </div>
-              <div v-else-if="couples && couples.length > 0" class="space-y-3">
-                <div
-                  v-for="couple in couples"
-                  :key="couple.id"
-                  class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
-                >
-                  <div class="flex items-center gap-3">
-                    <UIcon
-                      name="i-heroicons-users"
-                      class="w-5 h-5 text-blue-600"
-                    />
-                    <div>
-                      <p class="font-medium">
-                        {{ couple.player1_name }} & {{ couple.player2_name }}
-                      </p>
-                      <p class="text-sm text-gray-500">
-                        Equipo #{{ couple.id }}
-                      </p>
-                    </div>
+
+            <div v-if="couplesPending" class="flex justify-center py-8">
+              <UIcon
+                name="i-heroicons-arrow-path"
+                class="w-6 h-6 animate-spin text-blue-500"
+              />
+            </div>
+
+            <div v-else-if="couplesError" class="py-4">
+              <UAlert
+                icon="i-heroicons-exclamation-triangle"
+                color="error"
+                title="Error"
+                description="No se pudieron cargar los equipos"
+              />
+            </div>
+
+            <div v-else-if="couples && couples.length > 0" class="space-y-3">
+              <div
+                v-for="couple in couples"
+                :key="couple.id"
+                class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+              >
+                <div class="flex items-center gap-3">
+                  <UIcon
+                    name="i-heroicons-users"
+                    class="w-5 h-5 text-blue-600"
+                  />
+                  <div>
+                    <p class="font-medium">
+                      {{ couple.player1_name }} & {{ couple.player2_name }}
+                    </p>
+                    <p class="text-sm text-gray-500">Equipo #{{ couple.id }}</p>
                   </div>
                 </div>
-              </div>
-              <div v-else class="text-center py-8 text-gray-500">
-                <UIcon
-                  name="i-heroicons-users"
-                  class="w-12 h-12 mx-auto mb-3 text-gray-400"
-                />
-                <p>No hay equipos registrados</p>
               </div>
             </div>
-            <div v-else-if="item.key === 'matches'">
-              <div v-if="matchesPending" class="flex justify-center py-8">
-                <UIcon
-                  name="i-heroicons-arrow-path"
-                  class="w-6 h-6 animate-spin text-blue-500"
-                />
+
+            <div v-else class="text-center py-8 text-gray-500">
+              <UIcon
+                name="i-heroicons-users"
+                class="w-12 h-12 mx-auto mb-3 text-gray-400"
+              />
+              <p>No hay equipos registrados</p>
+            </div>
+          </UCard>
+        </template>
+
+        <!-- Matches Tab -->
+        <template #matches="{ item }">
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold">
+                  Partidos ({{ matches?.length || 0 }})
+                </h3>
+                <UButton icon="i-heroicons-plus" size="sm">
+                  Agregar Partido
+                </UButton>
               </div>
-              <div v-else-if="matchesError" class="py-4">
-                <UAlert
-                  icon="i-heroicons-exclamation-triangle"
-                  color="error"
-                  title="Error"
-                  description="No se pudieron cargar los partidos"
-                />
-              </div>
-              <div v-else-if="matches && matches.length > 0" class="space-y-3">
-                <div
-                  v-for="match in matches"
-                  :key="match.id"
-                  class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                      <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-500">
-                          {{ match.round_name }} - Partido
-                          {{ match.match_order }}
-                        </span>
-                        <UBadge
-                          :color="getStatusColor(match.status)"
-                          variant="soft"
-                        >
-                          {{ getMatchStatusLabel(match.status) }}
-                        </UBadge>
+            </template>
+
+            <div v-if="matchesPending" class="flex justify-center py-8">
+              <UIcon
+                name="i-heroicons-arrow-path"
+                class="w-6 h-6 animate-spin text-blue-500"
+              />
+            </div>
+
+            <div v-else-if="matchesError" class="py-4">
+              <UAlert
+                icon="i-heroicons-exclamation-triangle"
+                color="error"
+                title="Error"
+                description="No se pudieron cargar los partidos"
+              />
+            </div>
+
+            <div v-else-if="matches && matches.length > 0" class="space-y-3">
+              <div
+                v-for="match in matches"
+                :key="match.id"
+                class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-sm font-medium text-gray-500">
+                        {{ match.round_name }} - Partido {{ match.match_order }}
+                      </span>
+                      <UBadge
+                        :color="getStatusColor(match.status)"
+                        variant="soft"
+                      >
+                        {{ getMatchStatusLabel(match.status) }}
+                      </UBadge>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                      <div class="text-center">
+                        <p class="font-medium">
+                          {{ match.couple1?.player1_name }} &
+                          {{ match.couple1?.player2_name }}
+                        </p>
+                        <p class="text-2xl font-bold text-blue-600">
+                          {{ match.score_couple1 || 0 }}
+                        </p>
                       </div>
-                      <div class="flex items-center justify-between">
-                        <div class="text-center">
-                          <p class="font-medium">
-                            {{ match.couple1?.player1_name }} &
-                            {{ match.couple1?.player2_name }}
-                          </p>
-                          <p class="text-2xl font-bold text-blue-600">
-                            {{ match.score_couple1 || 0 }}
-                          </p>
-                        </div>
-                        <div class="px-4">
-                          <UIcon
-                            name="i-heroicons-arrow-right"
-                            class="w-5 h-5 text-gray-400"
-                          />
-                        </div>
-                        <div class="text-center">
-                          <p class="font-medium">
-                            {{ match.couple2?.player1_name }} &
-                            {{ match.couple2?.player2_name }}
-                          </p>
-                          <p class="text-2xl font-bold text-green-600">
-                            {{ match.score_couple2 || 0 }}
-                          </p>
-                        </div>
+
+                      <div class="px-4">
+                        <UIcon
+                          name="i-heroicons-arrow-right"
+                          class="w-5 h-5 text-gray-400"
+                        />
+                      </div>
+
+                      <div class="text-center">
+                        <p class="font-medium">
+                          {{ match.couple2?.player1_name }} &
+                          {{ match.couple2?.player2_name }}
+                        </p>
+                        <p class="text-2xl font-bold text-green-600">
+                          {{ match.score_couple2 || 0 }}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div v-else class="text-center py-8 text-gray-500">
-                <UIcon
-                  name="i-heroicons-play"
-                  class="w-12 h-12 mx-auto mb-3 text-gray-400"
-                />
-                <p>No hay partidos programados</p>
-              </div>
+            </div>
+
+            <div v-else class="text-center py-8 text-gray-500">
+              <UIcon
+                name="i-heroicons-play"
+                class="w-12 h-12 mx-auto mb-3 text-gray-400"
+              />
+              <p>No hay partidos programados</p>
             </div>
           </UCard>
         </template>

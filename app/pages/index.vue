@@ -1,124 +1,27 @@
 <script setup lang="ts">
 definePageMeta({
   auth: false,
+  title: "Home - Proderinos Tournaments",
 });
-
-interface Tournament {
-  id: number;
-  name: string;
-  description?: string;
-  status: "draft" | "in_progress" | "completed" | "cancelled";
-  start_date?: string;
-  couples_count: number;
-  matches_count: number;
-}
-
 // Fetch recent tournaments and current tournament
-const { data: recentTournaments, pending } = await useLazyFetch<Tournament[]>(
-  "/api/tournaments",
-  {
-    server: false,
-    default: () => [],
-  }
-);
+const { tournaments, pending } = useGetAllTournaments();
 
 // Get current tournament (in progress)
 const currentTournament = computed(() => {
   return (
-    recentTournaments.value?.find((t) => t.status === "in_progress") || null
+    tournaments.value?.find((t) => t.status === "in_progress") || undefined
   );
 });
 
 // Get completed tournaments for previous matches
 const completedTournaments = computed(() => {
-  return recentTournaments.value?.filter((t) => t.status === "completed") || [];
-});
-
-// Helper functions
-function getStatusColor(
-  status: string
-):
-  | "primary"
-  | "secondary"
-  | "success"
-  | "info"
-  | "warning"
-  | "error"
-  | "neutral" {
-  const colors: Record<
-    string,
-    | "primary"
-    | "secondary"
-    | "success"
-    | "info"
-    | "warning"
-    | "error"
-    | "neutral"
-  > = {
-    draft: "neutral",
-    in_progress: "info",
-    completed: "success",
-    cancelled: "error",
-  };
-  return colors[status] || "neutral";
-}
-
-function formatDate(dateString?: string): string {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString();
-}
-
-// Page meta
-useHead({
-  title: "Home - Proderinos Tournaments",
+  return tournaments.value?.filter((t) => t.status === "completed") || [];
 });
 </script>
 
 <template>
   <div class="space-y-16">
-    <!-- Modern Hero Section -->
-    <section class="text-center py-16 px-4">
-      <div class="max-w-4xl mx-auto">
-        <div
-          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl mb-8"
-        >
-          <UIcon name="custom:paleta" class="w-10 h-10 text-white" />
-        </div>
-
-        <h1 class="text-5xl sm:text-6xl font-bold mb-6">
-          <span
-            class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
-          >
-            Proderinos
-          </span>
-          <br />
-          <span class="text-slate-800"
-            >Hacé tus predicciones en torneos de Pelota Paleta</span
-          >
-        </h1>
-
-        <p
-          class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed"
-        >
-          Demostrá que sos un experto en el deporte y competí con tus amigos.
-          Seguí el partido en vivo y la tabla de predicciones.
-        </p>
-
-        <div
-          class="flex flex-col sm:flex-row gap-4 justify-center items-center"
-        >
-          <UButton
-            v-if="currentTournament"
-            :to="`/tournaments/${currentTournament.id}`"
-            size="xl"
-            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-4"
-          >
-            <UIcon name="i-heroicons-play" class="w-5 h-5 mr-2" />
-            Ver torneo {{ currentTournament.name }}
-          </UButton>
-        </div>
-      </div>
-    </section>
+    <MoleculeLandingHero :current-tournament="currentTournament" />
 
     <!-- Modern Action Cards -->
     <section class="px-4">
@@ -266,11 +169,11 @@ useHead({
           </div>
 
           <div
-            v-else-if="recentTournaments?.length"
+            v-else-if="tournaments?.length"
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             <div
-              v-for="tournament in recentTournaments"
+              v-for="tournament in tournaments"
               :key="tournament.id"
               class="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-blue-200 cursor-pointer transform hover:scale-105"
               @click="navigateTo(`/tournaments/${tournament.id}`)"
