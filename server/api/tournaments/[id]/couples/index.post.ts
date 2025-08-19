@@ -1,5 +1,5 @@
 import { canManageTournament } from '../../../../utils/auth-check'
-import { getDatabase, type Couple } from '../../../../utils/database'
+import { getDatabase } from '../../../../utils/database'
 
 export default defineEventHandler(async (event) => {
   const db = getDatabase()

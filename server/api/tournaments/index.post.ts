@@ -1,5 +1,5 @@
 import { requireOrganizatorAuth } from '../../utils/auth-check'
-import { getDatabase, type Tournament } from '../../utils/database'
+import { getDatabase } from '../../utils/database'
 
 interface ExtendedUser {
   id: string
