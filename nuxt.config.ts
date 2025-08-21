@@ -28,9 +28,9 @@ export default defineNuxtConfig({
     },
     sessionRefresh: {
       enablePeriodically: true,
+      interval: 1000 * 60 * 10, // 10 minutos
       enableOnWindowFocus: true,
     },
-    // Redirect unauthenticated users to login page instead of provider
     redirect: {
       login: '/login',
       logout: '/',
@@ -41,7 +41,7 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
   
-  // Force light theme for now
+  // Forzar tema claro
   colorMode: {
     preference: 'light',
     fallback: 'light'
