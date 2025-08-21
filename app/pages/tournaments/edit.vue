@@ -1,4 +1,104 @@
-C
+<script setup lang="ts">
+import type { TournamentPatchBody } from "#shared/types";
+definePageMeta({
+  auth: {
+    unauthenticatedOnly: false,
+    navigateAuthenticatedTo: undefined,
+  },
+});
+
+const route = useRoute();
+const tournamentId = parseInt(route.query.id as string);
+
+if (!tournamentId) {
+  throw createError({
+    statusCode: 400,
+    statusMessage: "Tournament ID is required",
+  });
+}
+
+// Get tournament data
+const {
+  tournament,
+  pending: tournamentPending,
+  error: tournamentError,
+} = useGetTournament(tournamentId);
+
+// Update composable
+const { updateTournament, pending, error } = useUpdateTournament();
+const success = ref(false);
+
+const form = ref<TournamentPatchBody>({
+  name: "",
+  description: "",
+  start_date: "",
+  end_date: "",
+  status: "draft",
+  visible: true,
+  primary_color: "#3b82f6",
+  background_color: "#f1f5f9",
+  organizators_id: [],
+});
+
+const organizatorsInput = ref("");
+
+const statusOptions = [
+  { label: "Borrador", value: "draft" },
+  { label: "En progreso", value: "in_progress" },
+  { label: "Finalizado", value: "completed" },
+  { label: "Cancelado", value: "cancelled" },
+];
+
+// Populate form when tournament data is loaded
+watch(
+  tournament,
+  (newTournament) => {
+    if (newTournament) {
+      form.value = {
+        name: newTournament.name,
+        description: newTournament.description || "",
+        start_date: newTournament.start_date || "",
+        end_date: newTournament.end_date || "",
+        status: newTournament.status,
+        visible: newTournament.visible ?? true,
+        primary_color: newTournament.primary_color || "#3b82f6",
+        background_color: newTournament.background_color || "#f1f5f9",
+        organizators_id: Array.isArray(newTournament.organizators_id)
+          ? newTournament.organizators_id
+          : [],
+      };
+
+      organizatorsInput.value = Array.isArray(newTournament.organizators_id)
+        ? newTournament.organizators_id.join(", ")
+        : "";
+    }
+  },
+  { immediate: true }
+);
+
+const handleUpdate = async () => {
+  // Parse organizators
+  form.value.organizators_id = organizatorsInput.value
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => id);
+
+  try {
+    await updateTournament(tournamentId, form.value);
+    success.value = true;
+
+    // Navigate back after successful update
+    setTimeout(() => {
+      success.value = false;
+      navigateTo(`/tournaments/${tournamentId}`);
+    }, 2000);
+  } catch (err) {
+    // Error is handled by the composable
+    console.error("Failed to update tournament:", err);
+  }
+};
+</script>
+
 <template>
   <div class="max-w-2xl mx-auto py-8 px-4">
     <UCard>
@@ -182,105 +282,3 @@ C
     </UCard>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { TournamentPatchBody } from "#shared/types";
-
-definePageMeta({
-  auth: {
-    unauthenticatedOnly: false,
-    navigateAuthenticatedTo: undefined,
-  },
-});
-
-const route = useRoute();
-const tournamentId = parseInt(route.query.id as string);
-
-if (!tournamentId) {
-  throw createError({
-    statusCode: 400,
-    statusMessage: "Tournament ID is required",
-  });
-}
-
-// Get tournament data
-const {
-  tournament,
-  pending: tournamentPending,
-  error: tournamentError,
-} = useGetTournament(tournamentId);
-
-// Update composable
-const { updateTournament, pending, error } = useUpdateTournament();
-const success = ref(false);
-
-const form = ref<TournamentPatchBody>({
-  name: "",
-  description: "",
-  start_date: "",
-  end_date: "",
-  status: "draft",
-  visible: true,
-  primary_color: "#3b82f6",
-  background_color: "#f1f5f9",
-  organizators_id: [],
-});
-
-const organizatorsInput = ref("");
-
-const statusOptions = [
-  { label: "Borrador", value: "draft" },
-  { label: "En progreso", value: "in_progress" },
-  { label: "Finalizado", value: "completed" },
-  { label: "Cancelado", value: "cancelled" },
-];
-
-// Populate form when tournament data is loaded
-watch(
-  tournament,
-  (newTournament) => {
-    if (newTournament) {
-      form.value = {
-        name: newTournament.name,
-        description: newTournament.description || "",
-        start_date: newTournament.start_date || "",
-        end_date: newTournament.end_date || "",
-        status: newTournament.status,
-        visible: newTournament.visible ?? true,
-        primary_color: newTournament.primary_color || "#3b82f6",
-        background_color: newTournament.background_color || "#f1f5f9",
-        organizators_id: Array.isArray(newTournament.organizators_id)
-          ? newTournament.organizators_id
-          : [],
-      };
-
-      organizatorsInput.value = Array.isArray(newTournament.organizators_id)
-        ? newTournament.organizators_id.join(", ")
-        : "";
-    }
-  },
-  { immediate: true }
-);
-
-const handleUpdate = async () => {
-  // Parse organizators
-  form.value.organizators_id = organizatorsInput.value
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id);
-
-  try {
-    await updateTournament(tournamentId, form.value);
-    success.value = true;
-
-    // Navigate back after successful update
-    setTimeout(() => {
-      success.value = false;
-      navigateTo(`/tournaments/${tournamentId}`);
-    }, 2000);
-  } catch (err) {
-    // Error is handled by the composable
-    console.error("Failed to update tournament:", err);
-  }
-};
-</script>
