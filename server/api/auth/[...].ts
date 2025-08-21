@@ -2,6 +2,22 @@ import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { NuxtAuthHandler } from '#auth'
 import { authenticateUser, findOrCreateOAuthUser, updateUserRole, getUserById } from '../../utils/users'
+import type { JWT } from 'next-auth/jwt'
+import type { User as NextAuthUser, Account, Session as NextAuthSession} from 'next-auth'
+
+type ExtendedUser = NextAuthUser & {
+  role?: string;
+  username?: string;
+  dbId?: string | number;
+  profileCompleted?: boolean;
+};
+
+type ExtendedJWT = JWT & {
+  role?: string;
+  username?: string;
+  dbId?: string | number;
+  profileCompleted?: boolean;
+};
 
 export default NuxtAuthHandler({
   secret: useRuntimeConfig().authSecret,
@@ -32,7 +48,6 @@ export default NuxtAuthHandler({
         const username = credentials.username as string
         const password = credentials.password as string
 
-        // Authenticate existing user
         const user = await authenticateUser(username, password)
         
         if (user) {
@@ -50,61 +65,70 @@ export default NuxtAuthHandler({
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 60 * 60 * 24 // 1 día (24hs)
   },
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async jwt({ token, user, account }: { token: any; user?: any; account?: any }) {
-      if (user) {
-        // For Google OAuth users
-        if (account?.provider === 'google') {
-          const runtimeConfig = useRuntimeConfig()
-          const adminEmail = runtimeConfig.adminEmail
-          
-          // Find or create OAuth user in database
+    async jwt({ token, user, account }: {
+      token: ExtendedJWT;
+      user?: ExtendedUser | null;
+      account?: Account | null;
+      profile?: unknown;
+      isNewUser?: boolean;
+      trigger?: string;
+    }) {
+  if (user) {
+        // Para usuarios de Google OAuth
+  if (account && account.provider === 'google') {
+          const runtimeConfig = useRuntimeConfig();
+          const adminEmail = runtimeConfig.adminEmail;
+          // Buscar o crear usuario de OAuth en la base
           const dbUser = findOrCreateOAuthUser(
-            user.email,
+            user.email ?? '',
             user.name || 'OAuth User',
-            user.image,
+            user.image ?? undefined,
             'google',
             user.id
-          )
-          
-          // Update role in database if this is the admin user and not already admin
-          if (user.email === adminEmail && dbUser.role !== 'admin') {
-            updateUserRole(dbUser.id!, 'admin')
-            // Refresh the user data after role update
-            const updatedUser = getUserById(dbUser.id!)
+          );
+          // Forzar rol admin al mail admin
+          if (user.email && user.email === adminEmail && dbUser.role !== 'admin') {
+            updateUserRole(dbUser.id!, 'admin');
+            const updatedUser = getUserById(dbUser.id!);
             if (updatedUser) {
-              token.role = updatedUser.role
+              token.role = updatedUser.role;
             }
           } else {
-            token.role = dbUser.role
+            token.role = dbUser.role;
           }
-          
-          token.username = dbUser.username || user.email.split('@')[0]
-          token.dbId = dbUser.id
-          token.profileCompleted = dbUser.profile_completed || false
+          token.username = dbUser.username || (user.email ? user.email.split('@')[0] : '');
+          token.dbId = dbUser.id;
+          token.profileCompleted = dbUser.profile_completed || false;
         } else {
-          // For credentials users
-          token.role = user.role
-          token.username = user.username
-          token.dbId = user.dbId
-          token.profileCompleted = true // Credentials users have completed profile
+          // Para usuarios nativos
+          token.role = user.role ?? undefined;
+          token.username = user.username ?? undefined;
+          token.dbId = user.dbId ?? undefined;
+          token.profileCompleted = true;
         }
       }
-      return token
+  return token
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async session({ session, token }: { session: any; token: any }) {
-      if (token) {
-        session.user.id = token.sub
-        session.user.role = token.role
-        session.user.username = token.username
-        session.user.dbId = token.dbId
-        session.user.profileCompleted = token.profileCompleted
+    async session({ session, token }: {
+      session: NextAuthSession;
+      token: ExtendedJWT;
+      user?: ExtendedUser | null;
+      newSession?: unknown;
+      trigger?: string;
+    }) {
+      if (token && session.user) {
+        const user = session.user as ExtendedUser;
+        user.id = String(token.sub);
+        user.role = token.role;
+        user.username = token.username;
+        user.dbId = token.dbId;
+        user.profileCompleted = token.profileCompleted;
       }
-      return session
+      return session;
     }
   },
   pages: {
