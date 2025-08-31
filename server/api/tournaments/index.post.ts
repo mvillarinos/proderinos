@@ -36,18 +36,26 @@ export default defineEventHandler(async (event) => {
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
-    
+
+    // Ensure all values are valid types for SQLite
+    const visibleValue = typeof body.visible === 'boolean' ? (body.visible ? 1 : 0) : 1;
+    const organizatorsValue = JSON.stringify(
+      Array.isArray(body.organizators_id)
+        ? body.organizators_id.map(id => typeof id === 'string' || typeof id === 'number' ? id : String(id))
+        : []
+    );
+
     const result = insert.run(
       body.name,
       body.description || null,
       body.start_date || null,
       body.end_date || null,
       body.status || 'draft',
-      body.visible !== undefined ? body.visible : true,
+      visibleValue,
       body.primary_color || '#3B82F6',
       body.background_color || '#F8FAFC',
       String(user.dbId), // owner_id
-      JSON.stringify(body.organizators_id || []) // organizators_id as JSON string
+      organizatorsValue // organizators_id as JSON string
     )
     
     // Get the created tournament
